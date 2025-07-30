@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { Legend } from "./components/Legend";
 import { MapView } from "./components/MapView";
 import { NoteSidebar } from "./components/NoteSidebar";
@@ -18,6 +19,12 @@ export default function Home() {
     isLoading,
   } = useMapData();
 
+  // Add hoveredCountry state and handler
+  const [hoveredCountry, setHoveredCountry] = useState<string | null>(null);
+  const handleCountryHover = (countryCode: string | null) => {
+    setHoveredCountry(countryCode);
+  };
+
   const handleCountryClick = (countryCode: string) => {
     if (selectedCountry === countryCode) {
       // If already selected, cycle the status
@@ -34,8 +41,10 @@ export default function Home() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-xl text-gray-600">Loading...</div>
+      <div className="min-h-screen bg-gray-50">
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="text-xl text-gray-600">Loading...</div>
+        </div>
       </div>
     );
   }
@@ -54,13 +63,12 @@ export default function Home() {
         </div>
       </header>
 
-      {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+      {/* Main Content and Sidebar */}
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 items-center">
           {/* Legend */}
           <div className="lg:col-span-1">
             <Legend counts={getTotalCountsByStatus()} />
-
             {/* Instructions */}
             <div className="mt-6 bg-white rounded-lg shadow-md p-4 border">
               <h3 className="text-lg font-semibold mb-3 text-gray-800">
@@ -74,31 +82,33 @@ export default function Home() {
               </ul>
             </div>
           </div>
-
           {/* Map */}
-          <div className="lg:col-span-3">
-            <div className="bg-white rounded-lg shadow-md p-4 border">
-              <div className="h-96 lg:h-[500px]">
-                <MapView
-                  getCountryStatus={getCountryStatus}
-                  onCountryClick={handleCountryClick}
-                  selectedCountry={selectedCountry}
-                />
+          <div className="lg:col-span-3 flex justify-center items-center">
+            <div className="bg-white rounded-lg shadow-md p-4 border w-full max-w-4xl mx-auto overflow-hidden flex items-center justify-center">
+              <div className="w-full aspect-w-16 aspect-h-9">
+                <div className="w-full h-full">
+                  <MapView
+                    getCountryStatus={getCountryStatus}
+                    onCountryClick={handleCountryClick}
+                    selectedCountry={selectedCountry}
+                    hoveredCountry={hoveredCountry}
+                    onCountryHover={handleCountryHover}
+                  />
+                </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
-
-      {/* Sidebar */}
-      <NoteSidebar
-        countryCode={selectedCountry}
-        countryData={selectedCountry ? getCountryData(selectedCountry) : null}
-        onUpdateCountry={updateCountry}
-        onRemoveCountry={removeCountry}
-        onClose={handleCloseSidebar}
-        isOpen={!!selectedCountry}
-      />
+        {/* Sidebar */}
+        <NoteSidebar
+          countryCode={selectedCountry}
+          countryData={selectedCountry ? getCountryData(selectedCountry) : null}
+          onUpdateCountry={updateCountry}
+          onRemoveCountry={removeCountry}
+          onClose={handleCloseSidebar}
+          isOpen={!!selectedCountry}
+        />
+      </main>
     </div>
   );
 }
