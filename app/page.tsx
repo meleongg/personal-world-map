@@ -1,12 +1,74 @@
 "use client";
 
-import { useState } from "react";
+import type { Feature, FeatureCollection } from "geojson";
+import { useEffect, useState } from "react";
+import { feature } from "topojson-client";
 import { Legend } from "./components/Legend";
 import { MapView } from "./components/MapView";
 import { NoteSidebar } from "./components/NoteSidebar";
 import { useMapData } from "./hooks/useMapData";
 
 export default function Home() {
+  const GEO_URL =
+    "https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json";
+  interface CountryProperties {
+    id: string;
+    name: string;
+  }
+  type CountryFeature = Feature<GeoJSON.Geometry, CountryProperties>;
+
+  // Patch: Extend CountryEntry type to include optional name
+  // (This should be moved to types/index.ts for best practice)
+  type CountryEntryPatched = ReturnType<typeof getCountryData> & {
+    name?: string;
+  };
+  const [countries, setCountries] = useState<CountryFeature[]>([]);
+  const [isMapLoading, setIsMapLoading] = useState(true);
+
+  useEffect(() => {
+    const loadGeoData = async () => {
+      try {
+        const response = await fetch(GEO_URL);
+        const topology = await response.json();
+        let countriesObject = topology.objects.countries;
+        if (!countriesObject) {
+          countriesObject =
+            topology.objects.countries110 ||
+            topology.objects.countries_110m ||
+            null;
+        }
+        if (!countriesObject) {
+          setIsMapLoading(false);
+          return;
+        }
+        const geoJsonFeatures = feature(topology, countriesObject);
+        if (!geoJsonFeatures || !("features" in geoJsonFeatures)) {
+          setIsMapLoading(false);
+          return;
+        }
+        const features = (
+          geoJsonFeatures as unknown as FeatureCollection<
+            GeoJSON.Geometry,
+            CountryProperties
+          >
+        ).features;
+        const validCountries = features.filter((country: CountryFeature) => {
+          return (
+            country.id &&
+            country.id !== "-99" &&
+            country.properties &&
+            country.properties.name &&
+            typeof country.properties.name === "string"
+          );
+        });
+        setCountries(validCountries);
+        setIsMapLoading(false);
+      } catch {
+        setIsMapLoading(false);
+      }
+    };
+    loadGeoData();
+  }, []);
   const {
     selectedCountry,
     setSelectedCountry,
@@ -93,6 +155,8 @@ export default function Home() {
                     selectedCountry={selectedCountry}
                     hoveredCountry={hoveredCountry}
                     onCountryHover={handleCountryHover}
+                    countries={countries}
+                    isLoading={isMapLoading}
                   />
                 </div>
               </div>
@@ -102,7 +166,17 @@ export default function Home() {
         {/* Sidebar */}
         <NoteSidebar
           countryCode={selectedCountry}
-          countryData={selectedCountry ? getCountryData(selectedCountry) : null}
+          countryData={
+            selectedCountry
+              ? ({
+                  ...getCountryData(selectedCountry),
+                  name:
+                    countries.find(
+                      (c: CountryFeature) => String(c.id) === selectedCountry
+                    )?.properties.name || selectedCountry.toUpperCase(),
+                } as CountryEntryPatched)
+              : null
+          }
           onUpdateCountry={updateCountry}
           onRemoveCountry={removeCountry}
           onClose={handleCloseSidebar}

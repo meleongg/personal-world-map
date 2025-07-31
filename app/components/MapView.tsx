@@ -1,15 +1,9 @@
 "use client";
 
 import { geoNaturalEarth1, geoPath } from "d3-geo";
-import type { Feature, FeatureCollection } from "geojson";
-import { useEffect, useRef, useState } from "react";
-import { feature } from "topojson-client";
+import type { Feature } from "geojson";
+import { useRef } from "react";
 import { STATUS_COLORS, TravelStatus } from "../types";
-
-// URL for world map topology data
-
-const GEO_URL =
-  "https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json";
 
 // MapView-specific colors
 const MAPVIEW_COLORS = {
@@ -38,6 +32,8 @@ interface MapViewProps {
   selectedCountry: string | null;
   hoveredCountry?: string | null;
   onCountryHover?: (countryCode: string | null) => void;
+  countries: CountryFeature[];
+  isLoading: boolean;
 }
 
 interface CountryProperties {
@@ -53,85 +49,18 @@ export const MapView: React.FC<MapViewProps> = ({
   selectedCountry,
   hoveredCountry,
   onCountryHover,
+  countries,
+  isLoading,
 }) => {
   const svgRef = useRef<SVGSVGElement>(null);
-  const [countries, setCountries] = useState<CountryFeature[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-
   const WIDTH = 1000;
   const HEIGHT = 600;
 
-  // D3 projection and path generator
   const projection = geoNaturalEarth1()
     .scale(180)
     .translate([WIDTH / 2, HEIGHT / 2 + 20]);
 
   const pathGenerator = geoPath().projection(projection);
-
-  // Load and process geographic data
-  useEffect(() => {
-    const loadGeoData = async () => {
-      try {
-        const response = await fetch(GEO_URL);
-        const topology = await response.json();
-
-        let countriesObject = topology.objects.countries;
-        if (!countriesObject) {
-          countriesObject =
-            topology.objects.countries110 ||
-            topology.objects.countries_110m ||
-            null;
-        }
-        if (!countriesObject) {
-          console.error(
-            "Could not find countries object in TopoJSON:",
-            Object.keys(topology.objects)
-          );
-          setIsLoading(false);
-          return;
-        }
-
-        // Convert TopoJSON to GeoJSON features
-        const geoJsonFeatures = feature(topology, countriesObject);
-        if (!geoJsonFeatures || !(geoJsonFeatures as any).features) {
-          console.error("GeoJSON features not found:", geoJsonFeatures);
-          setIsLoading(false);
-          return;
-        }
-
-        // Handle the conversion safely
-        const features = (
-          geoJsonFeatures as unknown as FeatureCollection<
-            GeoJSON.Geometry,
-            CountryProperties
-          >
-        ).features;
-
-        // Filter out invalid countries (use id and name)
-        const validCountries = features.filter((country: CountryFeature) => {
-          return (
-            country.id &&
-            country.id !== "-99" &&
-            country.properties &&
-            country.properties.name &&
-            typeof country.properties.name === "string"
-          );
-        });
-
-        if (validCountries.length === 0) {
-          console.warn("No valid countries found in features:", features);
-        }
-
-        setCountries(validCountries);
-        setIsLoading(false);
-      } catch (error) {
-        console.error("Error loading geographic data:", error);
-        setIsLoading(false);
-      }
-    };
-
-    loadGeoData();
-  }, []);
 
   const getCountryColor = (countryCode: string): string => {
     const status = getCountryStatus(countryCode);

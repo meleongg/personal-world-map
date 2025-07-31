@@ -1,5 +1,9 @@
 "use client";
 
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { useEffect, useState } from "react";
 import {
   CountryEntry,
@@ -10,7 +14,7 @@ import {
 
 interface NoteSidebarProps {
   countryCode: string | null;
-  countryData: CountryEntry | null;
+  countryData: (CountryEntry & { name?: string }) | null;
   onUpdateCountry: (
     countryCode: string,
     updates: Partial<CountryEntry>
@@ -73,17 +77,23 @@ export const NoteSidebar: React.FC<NoteSidebarProps> = ({
     return null;
   }
 
+  const countryName = countryData?.name || countryCode.toUpperCase();
+
   return (
     <div className="fixed inset-y-0 right-0 w-80 bg-white shadow-xl border-l border-gray-200 z-50 overflow-y-auto">
       <div className="p-6">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-xl font-bold text-gray-900">
-            {countryCode.toUpperCase()}
+          <h2
+            className="text-xl font-bold text-gray-900 truncate"
+            title={countryName}
+          >
+            {countryName}
           </h2>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 transition-colors"
+            className="text-gray-400 hover:text-gray-600 transition-colors flex items-center justify-center"
+            aria-label="Close sidebar"
           >
             <svg
               className="w-6 h-6"
@@ -103,31 +113,40 @@ export const NoteSidebar: React.FC<NoteSidebarProps> = ({
 
         {/* Status Selection */}
         <div className="mb-6">
-          <label className="block text-sm font-medium text-gray-700 mb-3">
-            Travel Status
-          </label>
+          <Label className="mb-3">Travel Status</Label>
           <div className="grid grid-cols-2 gap-2">
             {Object.entries(STATUS_LABELS).map(([statusKey, label]) => {
               const statusValue = statusKey as TravelStatus;
               const isSelected = status === statusValue;
               return (
-                <button
+                <Button
                   key={statusKey}
-                  onClick={() => handleStatusChange(statusValue)}
-                  className={`p-3 rounded-lg border text-sm font-medium transition-all ${
+                  variant={isSelected ? "secondary" : "outline"}
+                  className={`w-full flex flex-row items-center gap-3 min-h-[56px] px-5 text-base font-semibold border-2 bg-white ${
                     isSelected
-                      ? "border-blue-500 bg-blue-50 text-blue-700"
-                      : "border-gray-200 bg-white text-gray-700 hover:border-gray-300"
+                      ? "border-2 shadow-md"
+                      : "text-gray-800 hover:border-blue-300"
                   }`}
+                  style={
+                    isSelected
+                      ? {
+                          borderColor: STATUS_COLORS[statusValue],
+                          color: STATUS_COLORS[statusValue],
+                        }
+                      : {
+                          borderColor: "#d1d5db", // gray-300
+                        }
+                  }
+                  onClick={() => handleStatusChange(statusValue)}
                 >
-                  <div className="flex items-center gap-2">
-                    <div
-                      className="w-3 h-3 rounded-sm"
-                      style={{ backgroundColor: STATUS_COLORS[statusValue] }}
-                    />
+                  <span
+                    className="w-4 h-4 rounded-full shrink-0"
+                    style={{ backgroundColor: STATUS_COLORS[statusValue] }}
+                  />
+                  <span className="whitespace-normal break-words text-gray-900 text-center">
                     {label}
-                  </div>
-                </button>
+                  </span>
+                </Button>
               );
             })}
           </div>
@@ -136,10 +155,8 @@ export const NoteSidebar: React.FC<NoteSidebarProps> = ({
         {/* Visit Date */}
         {status === "visited" && (
           <div className="mb-6">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Visit Date (Optional)
-            </label>
-            <input
+            <Label className="mb-2">Visit Date (Optional)</Label>
+            <Input
               type="date"
               value={visitedAt}
               onChange={(e) => {
@@ -150,41 +167,40 @@ export const NoteSidebar: React.FC<NoteSidebarProps> = ({
                   });
                 }
               }}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
           </div>
         )}
 
         {/* Notes */}
         <div className="mb-6">
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Notes
-          </label>
-          <textarea
+          <Label className="mb-2">Notes</Label>
+          <Textarea
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
             onBlur={handleSave}
             placeholder="Add your thoughts, memories, or plans..."
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none h-32"
+            className="h-32"
           />
         </div>
 
         {/* Actions */}
         <div className="flex flex-col gap-3">
-          <button
+          <Button
             onClick={handleSave}
-            className="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors font-medium"
+            className="w-full flex items-center justify-center"
+            variant="default"
           >
             Save Changes
-          </button>
+          </Button>
 
           {countryData && (
-            <button
+            <Button
               onClick={handleRemove}
-              className="w-full bg-red-100 text-red-700 py-2 px-4 rounded-lg hover:bg-red-200 transition-colors font-medium"
+              className="w-full flex items-center justify-center"
+              variant="destructive"
             >
               Remove from Map
-            </button>
+            </Button>
           )}
         </div>
       </div>
