@@ -6,6 +6,7 @@ import { feature } from "topojson-client";
 import { Legend } from "./components/Legend";
 import { MapView } from "./components/MapView";
 import { NoteSidebar } from "./components/NoteSidebar";
+import { ThemeToggle } from "./components/ThemeToggle";
 import { useMapData } from "./hooks/useMapData";
 
 export default function Home() {
@@ -103,25 +104,32 @@ export default function Home() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
         <div className="flex items-center justify-center min-h-screen">
-          <div className="text-xl text-gray-600">Loading...</div>
+          <div className="text-xl text-gray-600 dark:text-gray-300">
+            Loading...
+          </div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b border-gray-200">
+      <header className="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <h1 className="text-3xl font-bold text-gray-900">
-            Personal World Map
-          </h1>
-          <p className="mt-1 text-sm text-gray-600">
-            Track your travels and plan your next adventures
-          </p>
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+                Personal World Map
+              </h1>
+              <p className="mt-1 text-sm text-gray-600 dark:text-gray-300">
+                Track your travels and plan your next adventures
+              </p>
+            </div>
+            <ThemeToggle />
+          </div>
         </div>
       </header>
 
@@ -132,11 +140,11 @@ export default function Home() {
           <div className="lg:col-span-1">
             <Legend counts={getTotalCountsByStatus()} />
             {/* Instructions */}
-            <div className="mt-6 bg-white rounded-lg shadow-md p-4 border">
-              <h3 className="text-lg font-semibold mb-3 text-gray-800">
+            <div className="mt-6 bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 border border-gray-200 dark:border-gray-700">
+              <h3 className="text-lg font-semibold mb-3 text-gray-800 dark:text-white">
                 How to Use
               </h3>
-              <ul className="text-sm text-gray-600 space-y-2">
+              <ul className="text-sm text-gray-600 dark:text-gray-300 space-y-2">
                 <li>• Click a country to select it</li>
                 <li>• Click again to cycle through statuses</li>
                 <li>• Selected countries open the sidebar</li>
@@ -147,7 +155,7 @@ export default function Home() {
           </div>
           {/* Map */}
           <div className="lg:col-span-3 flex justify-center items-center">
-            <div className="bg-white rounded-lg shadow-md p-4 border w-full max-w-4xl mx-auto overflow-hidden flex items-center justify-center">
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 border border-gray-200 dark:border-gray-700 w-full max-w-4xl mx-auto overflow-hidden flex items-center justify-center">
               <div className="w-full aspect-w-16 aspect-h-9">
                 <div className="w-full h-full">
                   <MapView

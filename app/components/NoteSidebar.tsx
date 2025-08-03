@@ -88,19 +88,19 @@ export const NoteSidebar: React.FC<NoteSidebarProps> = ({
   const countryName = countryData?.name || countryCode.toUpperCase();
 
   return (
-    <div className="fixed inset-y-0 right-0 w-80 bg-white shadow-xl border-l border-gray-200 z-50 overflow-y-auto">
+    <div className="fixed inset-y-0 right-0 w-80 bg-white dark:bg-gray-800 shadow-xl border-l border-gray-200 dark:border-gray-700 z-50 overflow-y-auto">
       <div className="p-6">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <h2
-            className="text-xl font-bold text-gray-900 truncate"
+            className="text-xl font-bold text-gray-900 dark:text-white truncate"
             title={countryName}
           >
             {countryName}
           </h2>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 transition-colors flex items-center justify-center cursor-pointer"
+            className="text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 transition-colors flex items-center justify-center cursor-pointer"
             aria-label="Close sidebar"
           >
             <svg
@@ -130,10 +130,10 @@ export const NoteSidebar: React.FC<NoteSidebarProps> = ({
                 <Button
                   key={statusKey}
                   variant={isSelected ? "secondary" : "outline"}
-                  className={`w-full flex flex-row items-center gap-3 min-h-[56px] px-5 text-base font-semibold border-2 bg-white cursor-pointer ${
+                  className={`w-full flex flex-row items-center gap-3 min-h-[56px] px-5 text-base font-semibold border-2 bg-white dark:bg-gray-800 cursor-pointer ${
                     isSelected
                       ? "border-2 shadow-md"
-                      : "text-gray-800 hover:border-blue-300"
+                      : "text-gray-800 dark:text-gray-200 hover:border-blue-300 dark:hover:border-blue-500"
                   }`}
                   style={
                     isSelected
@@ -151,7 +151,7 @@ export const NoteSidebar: React.FC<NoteSidebarProps> = ({
                     className="w-4 h-4 rounded-full shrink-0"
                     style={{ backgroundColor: STATUS_COLORS[statusValue] }}
                   />
-                  <span className="whitespace-normal break-words text-gray-900 text-center">
+                  <span className="whitespace-normal break-words text-gray-900 dark:text-gray-100 text-center">
                     {label}
                   </span>
                 </Button>

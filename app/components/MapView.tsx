@@ -7,6 +7,7 @@ import { Copy, Download } from "lucide-react";
 import { useRef } from "react";
 import { toast } from "sonner";
 import { MAP_DIMENSIONS, MAPVIEW_COLORS, STATUS_COLORS } from "../constants";
+import { useTheme } from "../contexts/ThemeContext";
 import { TravelStatus } from "../types";
 import { copyMapToClipboard, exportMapAsPNG } from "../utils/mapExport";
 
@@ -45,6 +46,7 @@ export const MapView: React.FC<MapViewProps> = ({
   isLoading,
 }) => {
   const svgRef = useRef<SVGSVGElement>(null);
+  const { theme } = useTheme();
 
   const projection = geoNaturalEarth1()
     .scale(180)
@@ -96,26 +98,28 @@ export const MapView: React.FC<MapViewProps> = ({
     if (status) {
       return STATUS_COLORS[status];
     }
-    return MAPVIEW_COLORS.unvisitedFill;
+    return theme === "dark"
+      ? MAPVIEW_COLORS.unvisitedFillDark
+      : MAPVIEW_COLORS.unvisitedFill;
   };
 
   if (isLoading) {
     return (
-      <div className="w-full bg-blue-50 rounded-lg overflow-hidden flex items-center justify-center aspect-[5/3] max-h-[600px]">
-        <div className="text-gray-600">Loading map...</div>
+      <div className="w-full bg-blue-50 dark:bg-gray-700 rounded-lg overflow-hidden flex items-center justify-center aspect-[5/3] max-h-[600px]">
+        <div className="text-gray-600 dark:text-gray-300">Loading map...</div>
       </div>
     );
   }
 
   return (
-    <div className="relative w-full bg-blue-50 rounded-lg overflow-hidden flex items-center justify-center aspect-[5/3] max-h-[600px]">
+    <div className="relative w-full bg-blue-50 dark:bg-gray-700 rounded-lg overflow-hidden flex items-center justify-center aspect-[5/3] max-h-[600px]">
       {/* Export and Copy Buttons */}
       <div className="absolute top-2 right-2 z-10 flex gap-2">
         <Button
           onClick={handleCopyToClipboard}
           variant="outline"
           size="sm"
-          className="bg-white/90 hover:bg-white shadow-md flex items-center gap-2 cursor-pointer"
+          className="bg-white/90 dark:bg-gray-800/90 hover:bg-white dark:hover:bg-gray-800 shadow-md flex items-center gap-2 cursor-pointer"
         >
           <Copy className="w-4 h-4" />
           Copy
@@ -124,7 +128,7 @@ export const MapView: React.FC<MapViewProps> = ({
           onClick={handleExportMap}
           variant="outline"
           size="sm"
-          className="bg-white/90 hover:bg-white shadow-md flex items-center gap-2 cursor-pointer"
+          className="bg-white/90 dark:bg-gray-800/90 hover:bg-white dark:hover:bg-gray-800 shadow-md flex items-center gap-2 cursor-pointer"
         >
           <Download className="w-4 h-4" />
           Export
@@ -147,17 +151,28 @@ export const MapView: React.FC<MapViewProps> = ({
           const isHovered = hoveredCountry === countryCode;
           const isSelected = selectedCountry === countryCode;
           let fillColor =
-            getCountryColor(countryCode) || MAPVIEW_COLORS.unvisitedFill;
+            getCountryColor(countryCode) ||
+            (theme === "dark"
+              ? MAPVIEW_COLORS.unvisitedFillDark
+              : MAPVIEW_COLORS.unvisitedFill);
           if (isHovered && !isSelected) {
             const status = getCountryStatus(countryCode);
             fillColor = status
               ? STATUS_HOVER_COLORS[status]
+              : theme === "dark"
+              ? MAPVIEW_COLORS.hoverFillDark
               : MAPVIEW_COLORS.hoverFill;
           }
           const strokeColor = isSelected
-            ? MAPVIEW_COLORS.selectedStroke
+            ? theme === "dark"
+              ? MAPVIEW_COLORS.selectedStrokeDark
+              : MAPVIEW_COLORS.selectedStroke
             : isHovered
-            ? MAPVIEW_COLORS.hoverStroke
+            ? theme === "dark"
+              ? MAPVIEW_COLORS.hoverStrokeDark
+              : MAPVIEW_COLORS.hoverStroke
+            : theme === "dark"
+            ? MAPVIEW_COLORS.borderStrokeDark
             : MAPVIEW_COLORS.borderStroke;
           const strokeWidth = String(isSelected || isHovered ? 2 : 0.5);
           return (
