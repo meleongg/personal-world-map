@@ -141,6 +141,7 @@ export default function Home() {
                 <li>• Click again to cycle through statuses</li>
                 <li>• Selected countries open the sidebar</li>
                 <li>• Add notes and visit dates</li>
+                <li>• Your map is automatically saved in your browser</li>
               </ul>
             </div>
           </div>
