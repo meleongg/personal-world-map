@@ -81,7 +81,10 @@ export const MapView: React.FC<MapViewProps> = ({
     svg.call(zoomBehavior);
 
     // Store zoom behavior for reset function
-    (svg.node() as any).__zoomBehavior = zoomBehavior;
+    const svgNode = svg.node() as SVGSVGElement & {
+      __zoomBehavior?: ZoomBehavior<SVGSVGElement, unknown>;
+    };
+    svgNode.__zoomBehavior = zoomBehavior;
 
     // Cleanup function
     return () => {
@@ -93,7 +96,10 @@ export const MapView: React.FC<MapViewProps> = ({
     if (!svgRef.current) return;
 
     const svg = select(svgRef.current);
-    const zoomBehavior = (svg.node() as any).__zoomBehavior;
+    const svgNode = svg.node() as SVGSVGElement & {
+      __zoomBehavior?: ZoomBehavior<SVGSVGElement, unknown>;
+    };
+    const zoomBehavior = svgNode.__zoomBehavior;
 
     if (zoomBehavior) {
       svg.transition().duration(750).call(zoomBehavior.transform, zoomIdentity);
