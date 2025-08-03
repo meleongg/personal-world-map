@@ -14,9 +14,9 @@ export const STATUS_LABELS = {
 } as const;
 
 export const STATUS_CYCLE: TravelStatus[] = [
-  "want_to_visit",
-  "planning",
   "visited",
+  "planning",
+  "want_to_visit",
   "avoid",
 ];
 

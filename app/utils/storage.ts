@@ -35,7 +35,7 @@ export const updateCountryEntry = (
   const updatedEntry: CountryEntry = {
     ...existing,
     countryCode,
-    status: existing?.status || "want_to_visit",
+    status: existing?.status || "visited",
     ...updates,
   };
 
@@ -49,8 +49,15 @@ export const cycleCountryStatus = (
   data: MapData,
   countryCode: string
 ): MapData => {
-  const current = data[countryCode]?.status || "want_to_visit";
-  const currentIndex = STATUS_CYCLE.indexOf(current);
+  const currentEntry = data[countryCode];
+
+  // If no entry exists or no status, start with the first status in cycle
+  if (!currentEntry || !currentEntry.status) {
+    return updateCountryEntry(data, countryCode, { status: STATUS_CYCLE[0] });
+  }
+
+  // Otherwise, cycle to the next status
+  const currentIndex = STATUS_CYCLE.indexOf(currentEntry.status);
   const nextStatus = STATUS_CYCLE[(currentIndex + 1) % STATUS_CYCLE.length];
 
   return updateCountryEntry(data, countryCode, { status: nextStatus });
