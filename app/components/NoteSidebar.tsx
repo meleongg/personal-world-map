@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 import {
   CountryEntry,
   STATUS_COLORS,
@@ -59,17 +60,28 @@ export const NoteSidebar: React.FC<NoteSidebarProps> = ({
     };
 
     onUpdateCountry(countryCode, updates);
+    toast.success(
+      `Changes saved for ${countryData?.name || countryCode.toUpperCase()}`
+    );
   };
 
   const handleRemove = () => {
     if (!countryCode) return;
     onRemoveCountry(countryCode);
+    toast.success(
+      `${countryData?.name || countryCode.toUpperCase()} removed from map`
+    );
   };
 
   const handleStatusChange = (newStatus: TravelStatus) => {
     setStatus(newStatus);
     if (countryCode) {
       onUpdateCountry(countryCode, { status: newStatus });
+      toast.success(
+        `Status changed to "${STATUS_LABELS[newStatus]}" for ${
+          countryData?.name || countryCode.toUpperCase()
+        }`
+      );
     }
   };
 
@@ -92,7 +104,7 @@ export const NoteSidebar: React.FC<NoteSidebarProps> = ({
           </h2>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 transition-colors flex items-center justify-center"
+            className="text-gray-400 hover:text-gray-600 transition-colors flex items-center justify-center cursor-pointer"
             aria-label="Close sidebar"
           >
             <svg
@@ -122,7 +134,7 @@ export const NoteSidebar: React.FC<NoteSidebarProps> = ({
                 <Button
                   key={statusKey}
                   variant={isSelected ? "secondary" : "outline"}
-                  className={`w-full flex flex-row items-center gap-3 min-h-[56px] px-5 text-base font-semibold border-2 bg-white ${
+                  className={`w-full flex flex-row items-center gap-3 min-h-[56px] px-5 text-base font-semibold border-2 bg-white cursor-pointer ${
                     isSelected
                       ? "border-2 shadow-md"
                       : "text-gray-800 hover:border-blue-300"
@@ -165,6 +177,13 @@ export const NoteSidebar: React.FC<NoteSidebarProps> = ({
                   onUpdateCountry(countryCode, {
                     visitedAt: e.target.value || undefined,
                   });
+                  if (e.target.value) {
+                    toast.success(
+                      `Visit date updated for ${
+                        countryData?.name || countryCode.toUpperCase()
+                      }`
+                    );
+                  }
                 }
               }}
             />
@@ -187,7 +206,7 @@ export const NoteSidebar: React.FC<NoteSidebarProps> = ({
         <div className="flex flex-col gap-3">
           <Button
             onClick={handleSave}
-            className="w-full flex items-center justify-center"
+            className="w-full flex items-center justify-center cursor-pointer"
             variant="default"
           >
             Save Changes
@@ -196,7 +215,7 @@ export const NoteSidebar: React.FC<NoteSidebarProps> = ({
           {countryData && (
             <Button
               onClick={handleRemove}
-              className="w-full flex items-center justify-center"
+              className="w-full flex items-center justify-center cursor-pointer"
               variant="destructive"
             >
               Remove from Map
