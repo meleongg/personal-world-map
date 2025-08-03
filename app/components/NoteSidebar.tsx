@@ -6,12 +6,8 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import {
-  CountryEntry,
-  STATUS_COLORS,
-  STATUS_LABELS,
-  TravelStatus,
-} from "../types";
+import { STATUS_COLORS, STATUS_LABELS } from "../constants";
+import { CountryEntry, TravelStatus } from "../types";
 
 interface NoteSidebarProps {
   countryCode: string | null;

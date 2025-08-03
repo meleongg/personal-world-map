@@ -2,7 +2,8 @@
 
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { STATUS_COLORS, STATUS_LABELS, TravelStatus } from "../types";
+import { STATUS_COLORS, STATUS_LABELS } from "../constants";
+import { TravelStatus } from "../types";
 
 interface LegendProps {
   counts: Record<TravelStatus, number>;
