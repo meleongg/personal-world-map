@@ -1,8 +1,11 @@
 "use client";
 
+import { Button } from "@/components/ui/button";
 import { geoNaturalEarth1, geoPath } from "d3-geo";
 import type { Feature } from "geojson";
+import { Download } from "lucide-react";
 import { useRef } from "react";
+import { toast } from "sonner";
 import { STATUS_COLORS, TravelStatus } from "../types";
 
 // MapView-specific colors
@@ -62,6 +65,73 @@ export const MapView: React.FC<MapViewProps> = ({
 
   const pathGenerator = geoPath().projection(projection);
 
+  const handleExportMap = async () => {
+    if (!svgRef.current) {
+      toast.error("Map not ready for export. Please try again.");
+      return;
+    }
+
+    try {
+      // Create a canvas element
+      const canvas = document.createElement("canvas");
+      const ctx = canvas.getContext("2d");
+      if (!ctx) throw new Error("Could not get canvas context");
+
+      // Set canvas size
+      canvas.width = WIDTH;
+      canvas.height = HEIGHT;
+
+      // Convert SVG to data URL
+      const svgData = new XMLSerializer().serializeToString(svgRef.current);
+      const svgBlob = new Blob([svgData], {
+        type: "image/svg+xml;charset=utf-8",
+      });
+      const svgUrl = URL.createObjectURL(svgBlob);
+
+      // Create an image and draw it to canvas
+      const img = new Image();
+      img.onload = () => {
+        // Set white background
+        ctx.fillStyle = "#ffffff";
+        ctx.fillRect(0, 0, WIDTH, HEIGHT);
+
+        // Draw the SVG image
+        ctx.drawImage(img, 0, 0);
+
+        // Convert canvas to blob and download
+        canvas.toBlob((blob) => {
+          if (!blob) throw new Error("Could not create image blob");
+
+          const url = URL.createObjectURL(blob);
+          const link = document.createElement("a");
+          link.href = url;
+          link.download = `my-travel-map-${
+            new Date().toISOString().split("T")[0]
+          }.png`;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+
+          // Cleanup
+          URL.revokeObjectURL(url);
+          URL.revokeObjectURL(svgUrl);
+
+          toast.success("Map exported successfully!");
+        }, "image/png");
+      };
+
+      img.onerror = () => {
+        URL.revokeObjectURL(svgUrl);
+        toast.error("Failed to export map. Please try again.");
+      };
+
+      img.src = svgUrl;
+    } catch (error) {
+      console.error("Export failed:", error);
+      toast.error("Failed to export map. Please try again.");
+    }
+  };
+
   const getCountryColor = (countryCode: string): string => {
     const status = getCountryStatus(countryCode);
     if (status) {
@@ -79,7 +149,18 @@ export const MapView: React.FC<MapViewProps> = ({
   }
 
   return (
-    <div className="w-full bg-blue-50 rounded-lg overflow-hidden flex items-center justify-center aspect-[5/3] max-h-[600px]">
+    <div className="relative w-full bg-blue-50 rounded-lg overflow-hidden flex items-center justify-center aspect-[5/3] max-h-[600px]">
+      {/* Export Button */}
+      <Button
+        onClick={handleExportMap}
+        variant="outline"
+        size="sm"
+        className="absolute top-2 right-2 z-10 bg-white/90 hover:bg-white shadow-md flex items-center gap-2 cursor-pointer"
+      >
+        <Download className="w-4 h-4" />
+        Export
+      </Button>
+
       <svg
         ref={svgRef}
         viewBox={`0 0 ${WIDTH} ${HEIGHT}`}
