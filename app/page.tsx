@@ -7,7 +7,6 @@ import { Footer } from "./components/Footer";
 import { Legend } from "./components/Legend";
 import { MapView } from "./components/MapView";
 import { NoteSidebar } from "./components/NoteSidebar";
-import { ThemeToggle } from "./components/ThemeToggle";
 import { useMapData } from "./hooks/useMapData";
 
 export default function Home() {
@@ -173,6 +172,7 @@ export default function Home() {
             </div>
           </div>
         </div>
+<<<<<<< Updated upstream
         {/* Sidebar */}
         <NoteSidebar
           countryCode={selectedCountry}
@@ -196,6 +196,28 @@ export default function Home() {
 
       {/* Footer */}
       <Footer />
+=======
+      </div>
+      {/* Sidebar */}
+      <NoteSidebar
+        countryCode={selectedCountry}
+        countryData={
+          selectedCountry
+            ? ({
+                ...getCountryData(selectedCountry),
+                name:
+                  countries.find(
+                    (c: CountryFeature) => String(c.id) === selectedCountry
+                  )?.properties.name || selectedCountry.toUpperCase(),
+              } as CountryEntryPatched)
+            : null
+        }
+        onUpdateCountry={updateCountry}
+        onRemoveCountry={removeCountry}
+        onClose={handleCloseSidebar}
+        isOpen={!!selectedCountry}
+      />
+>>>>>>> Stashed changes
     </div>
   );
 }
