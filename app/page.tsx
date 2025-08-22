@@ -3,7 +3,6 @@
 import type { Feature, FeatureCollection } from "geojson";
 import { useEffect, useState } from "react";
 import { feature } from "topojson-client";
-import { Footer } from "./components/Footer";
 import { Legend } from "./components/Legend";
 import { MapView } from "./components/MapView";
 import { NoteSidebar } from "./components/NoteSidebar";
@@ -115,88 +114,43 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col">
-      {/* Header */}
-      <header className="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-                Personal World Map
-              </h1>
-              <p className="mt-1 text-sm text-gray-600 dark:text-gray-300">
-                Track your travels and plan your next adventures
-              </p>
-            </div>
-            <ThemeToggle />
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 items-center">
+        {/* Legend */}
+        <div className="lg:col-span-1">
+          <Legend counts={getTotalCountsByStatus()} />
+          {/* Instructions */}
+          <div className="mt-6 bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 border border-gray-200 dark:border-gray-700">
+            <h3 className="text-lg font-semibold mb-3 text-gray-800 dark:text-white">
+              How to Use
+            </h3>
+            <ul className="text-sm text-gray-600 dark:text-gray-300 space-y-2">
+              <li>• Click a country to select it</li>
+              <li>• Click again to cycle through statuses</li>
+              <li>• Selected countries open the sidebar</li>
+              <li>• Add notes and visit dates</li>
+              <li>• Your map is automatically saved in your browser</li>
+            </ul>
           </div>
         </div>
-      </header>
-
-      {/* Main Content and Sidebar */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex-1">
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 items-center">
-          {/* Legend */}
-          <div className="lg:col-span-1">
-            <Legend counts={getTotalCountsByStatus()} />
-            {/* Instructions */}
-            <div className="mt-6 bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 border border-gray-200 dark:border-gray-700">
-              <h3 className="text-lg font-semibold mb-3 text-gray-800 dark:text-white">
-                How to Use
-              </h3>
-              <ul className="text-sm text-gray-600 dark:text-gray-300 space-y-2">
-                <li>• Click a country to select it</li>
-                <li>• Click again to cycle through statuses</li>
-                <li>• Selected countries open the sidebar</li>
-                <li>• Add notes and visit dates</li>
-                <li>• Your map is automatically saved in your browser</li>
-              </ul>
-            </div>
-          </div>
-          {/* Map */}
-          <div className="lg:col-span-3 flex justify-center items-center">
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 border border-gray-200 dark:border-gray-700 w-full max-w-4xl mx-auto overflow-hidden flex items-center justify-center">
-              <div className="w-full aspect-w-16 aspect-h-9">
-                <div className="w-full h-full">
-                  <MapView
-                    getCountryStatus={getCountryStatus}
-                    onCountryClick={handleCountryClick}
-                    selectedCountry={selectedCountry}
-                    hoveredCountry={hoveredCountry}
-                    onCountryHover={handleCountryHover}
-                    countries={countries}
-                    isLoading={isMapLoading}
-                  />
-                </div>
+        {/* Map */}
+        <div className="lg:col-span-3 flex justify-center items-center">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 border border-gray-200 dark:border-gray-700 w-full max-w-4xl mx-auto overflow-hidden flex items-center justify-center">
+            <div className="w-full aspect-w-16 aspect-h-9">
+              <div className="w-full h-full">
+                <MapView
+                  getCountryStatus={getCountryStatus}
+                  onCountryClick={handleCountryClick}
+                  selectedCountry={selectedCountry}
+                  hoveredCountry={hoveredCountry}
+                  onCountryHover={handleCountryHover}
+                  countries={countries}
+                  isLoading={isMapLoading}
+                />
               </div>
             </div>
           </div>
         </div>
-<<<<<<< Updated upstream
-        {/* Sidebar */}
-        <NoteSidebar
-          countryCode={selectedCountry}
-          countryData={
-            selectedCountry
-              ? ({
-                  ...getCountryData(selectedCountry),
-                  name:
-                    countries.find(
-                      (c: CountryFeature) => String(c.id) === selectedCountry
-                    )?.properties.name || selectedCountry.toUpperCase(),
-                } as CountryEntryPatched)
-              : null
-          }
-          onUpdateCountry={updateCountry}
-          onRemoveCountry={removeCountry}
-          onClose={handleCloseSidebar}
-          isOpen={!!selectedCountry}
-        />
-      </main>
-
-      {/* Footer */}
-      <Footer />
-=======
       </div>
       {/* Sidebar */}
       <NoteSidebar
@@ -217,7 +171,6 @@ export default function Home() {
         onClose={handleCloseSidebar}
         isOpen={!!selectedCountry}
       />
->>>>>>> Stashed changes
     </div>
   );
 }
