@@ -1,18 +1,15 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
 import { geoNaturalEarth1, geoPath } from "d3-geo";
 import { select } from "d3-selection";
 import "d3-transition";
 import { zoom, ZoomBehavior, zoomIdentity } from "d3-zoom";
 import type { Feature } from "geojson";
-import { Copy, Download, RotateCcw } from "lucide-react";
 import { useEffect, useRef } from "react";
-import { toast } from "sonner";
 import { MAP_DIMENSIONS, MAPVIEW_COLORS, STATUS_COLORS } from "../constants";
 import { useTheme } from "../contexts/ThemeContext";
 import { TravelStatus } from "../types";
-import { copyMapToClipboard, exportMapAsPNG } from "../utils/mapExport";
+import { ExportButton } from "./ExportButton";
 
 // File-specific constants
 const STATUS_HOVER_COLORS: Record<TravelStatus, string> = {
@@ -106,45 +103,6 @@ export const MapView: React.FC<MapViewProps> = ({
     }
   };
 
-  const handleExportMap = async () => {
-    if (!svgRef.current) {
-      toast.error("Map not ready for export. Please try again.");
-      return;
-    }
-
-    try {
-      await exportMapAsPNG(svgRef.current);
-      toast.success("Map exported successfully!");
-    } catch (error) {
-      console.error("Export failed:", error);
-      toast.error("Failed to export map. Please try again.");
-    }
-  };
-
-  const handleCopyToClipboard = async () => {
-    if (!svgRef.current) {
-      toast.error("Map not ready for copying. Please try again.");
-      return;
-    }
-
-    try {
-      await copyMapToClipboard(svgRef.current);
-      toast.success("Map copied to clipboard!");
-    } catch (error) {
-      console.error("Copy failed:", error);
-      if (
-        error instanceof Error &&
-        error.message.includes("Clipboard not supported")
-      ) {
-        toast.info("Clipboard not supported. Map downloaded instead!");
-      } else {
-        toast.error(
-          "Failed to copy to clipboard. Try the download option instead."
-        );
-      }
-    }
-  };
-
   const getCountryColor = (countryCode: string): string => {
     const status = getCountryStatus(countryCode);
     if (status) {
@@ -166,35 +124,7 @@ export const MapView: React.FC<MapViewProps> = ({
   return (
     <div className="relative w-full bg-blue-50 dark:bg-gray-700 rounded-lg flex items-center justify-center aspect-[5/3] max-h-[600px]">
       {/* Export and Copy Buttons */}
-      <div className="absolute top-2 right-2 z-10 flex gap-2">
-        <Button
-          onClick={handleResetZoom}
-          variant="outline"
-          size="sm"
-          className="bg-white/90 dark:bg-gray-800/90 hover:bg-white dark:hover:bg-gray-800 shadow-md flex items-center gap-2 cursor-pointer"
-          title="Reset zoom"
-        >
-          <RotateCcw className="w-4 h-4" />
-        </Button>
-        <Button
-          onClick={handleCopyToClipboard}
-          variant="outline"
-          size="sm"
-          className="bg-white/90 dark:bg-gray-800/90 hover:bg-white dark:hover:bg-gray-800 shadow-md flex items-center gap-2 cursor-pointer"
-        >
-          <Copy className="w-4 h-4" />
-          Copy
-        </Button>
-        <Button
-          onClick={handleExportMap}
-          variant="outline"
-          size="sm"
-          className="bg-white/90 dark:bg-gray-800/90 hover:bg-white dark:hover:bg-gray-800 shadow-md flex items-center gap-2 cursor-pointer"
-        >
-          <Download className="w-4 h-4" />
-          Export
-        </Button>
-      </div>
+      <ExportButton svgRef={svgRef} onResetZoom={handleResetZoom} />
 
       {/* Zoom Instructions */}
       <div className="absolute top-2 left-2 z-10 bg-white/90 dark:bg-gray-800/90 rounded-md px-2 py-1 text-xs text-gray-600 dark:text-gray-300">
