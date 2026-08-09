@@ -24,6 +24,10 @@ local-first conventions. TypeScript is strict (`tsconfig.json` has `strict:
 true`); retain strict typing and do not weaken compiler or lint settings to make
 a change pass.
 
+Read [`STEERING.md`](STEERING.md) for product, data, privacy, and operational
+decisions that are not evident from source code. `AGENTS.md` remains the
+authoritative implementation workflow.
+
 Before changing Next.js, React, App Router, route handler, metadata, image, or
 other framework-specific code, read the relevant documentation installed with
 the project (and the matching official documentation when needed). This is
@@ -50,11 +54,13 @@ production-sensitive:
 
 ```bash
 npm run lint
+npm test
 npm run build
 ```
 
-There is currently no package test script and no package type-check script. For
-TypeScript verification, use the installed compiler:
+`npm test` runs the backend and business-logic unit suite without network access.
+There is no package type-check script. For TypeScript verification, use the
+installed compiler:
 
 ```bash
 npx tsc --noEmit
