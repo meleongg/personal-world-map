@@ -11,8 +11,9 @@ export const SHARE_TTL_SECONDS = 90 * 24 * 60 * 60;
 export const SHARE_ID_LENGTH = 7;
 export const SHARE_ID_PATTERN = /^[0-9A-Za-z]{7}$/;
 
-const SHARE_KEY_PREFIX = "share:";
-const CREATE_RATE_PREFIX = "ratelimit:share:create:";
+export const SHARE_KEY_PREFIX = "stamped:share:";
+export const LEGACY_SHARE_KEY_PREFIX = "share:";
+export const CREATE_RATE_PREFIX = "stamped:ratelimit:share:create:";
 const CREATE_RATE_LIMIT = 10;
 const CREATE_RATE_WINDOW_SECONDS = 60 * 60;
 
@@ -61,7 +62,10 @@ export interface UpdateShareResult {
 export const isValidShareId = (id: string): boolean =>
   SHARE_ID_PATTERN.test(id);
 
-const shareKey = (id: string): string => `${SHARE_KEY_PREFIX}${id}`;
+export const shareKey = (id: string): string => `${SHARE_KEY_PREFIX}${id}`;
+
+const legacyShareKey = (id: string): string =>
+  `${LEGACY_SHARE_KEY_PREFIX}${id}`;
 
 const randomShareId = (): string => {
   const bytes = randomBytes(SHARE_ID_LENGTH);
@@ -95,7 +99,9 @@ export const checkCreateRateLimit = async (clientIp: string): Promise<void> => {
 const loadStoredShare = async (id: string): Promise<StoredShare | null> => {
   if (!isValidShareId(id)) return null;
   const redis = getReadRedis();
-  const record = await redis.get<StoredShare>(shareKey(id));
+  const record =
+    (await redis.get<StoredShare>(shareKey(id))) ??
+    (await redis.get<StoredShare>(legacyShareKey(id)));
   if (!record) return null;
   if (new Date(record.expiresAt).getTime() <= Date.now()) {
     return null;
@@ -159,7 +165,9 @@ export const updateShare = async (
   }
 
   const redis = getWriteRedis();
-  const existing = await redis.get<StoredShare>(shareKey(id));
+  const existing =
+    (await redis.get<StoredShare>(shareKey(id))) ??
+    (await redis.get<StoredShare>(legacyShareKey(id)));
   if (!existing) {
     throw new ShareStoreError("Share link not found or expired.", "not_found");
   }

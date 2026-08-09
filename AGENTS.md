@@ -50,11 +50,13 @@ production-sensitive:
 
 ```bash
 npm run lint
+npm run test:backend
 npm run build
 ```
 
-There is currently no package test script and no package type-check script. For
-TypeScript verification, use the installed compiler:
+`npm run test:backend` uses Node's built-in test runner with the existing
+TypeScript loader. There is no package type-check script; for TypeScript
+verification, use the installed compiler:
 
 ```bash
 npx tsc --noEmit

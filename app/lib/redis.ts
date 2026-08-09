@@ -3,6 +3,23 @@ import { Redis } from "@upstash/redis";
 let writeClient: Redis | null = null;
 let readClient: Redis | null = null;
 
+/** Test-only seam for exercising server storage without network access. */
+export const setRedisClientsForTesting = ({
+  read,
+  write,
+}: {
+  read: Redis;
+  write: Redis;
+}): void => {
+  readClient = read;
+  writeClient = write;
+};
+
+export const resetRedisClientsForTesting = (): void => {
+  readClient = null;
+  writeClient = null;
+};
+
 const getRestUrl = (): string => {
   const url = process.env.KV_REST_API_URL ?? process.env.UPSTASH_REDIS_REST_URL;
   if (!url) {
